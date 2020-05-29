@@ -8,6 +8,6 @@ namespace GitInteraction.Git
         string CloneRepository(string cloneUrl, string destinationPath);
         void RestoreRepositoryToPreviousState(string repositoryPath, string commitId);
         IList<Commit> GetRepositoryCommits(string repositoryPath);
-        IList<Branch> GetRepositoryRemoteBranches(string repositoryPath);
+        IList<Branch> GetRemoteBranchesHistory(string repositoryPath);
     }
 }

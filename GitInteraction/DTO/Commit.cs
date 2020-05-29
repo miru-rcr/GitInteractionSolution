@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 
 namespace GitInteraction.DTO
 {
@@ -6,6 +7,7 @@ namespace GitInteraction.DTO
     {
         public string CommitSha { get; set; }
         public string Message { get; set; }
+        public string AuthorName { get; set; }
         public IList<Commit> Parents { get; set; }
     }
 }

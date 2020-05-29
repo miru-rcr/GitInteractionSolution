@@ -1,6 +1,6 @@
 ﻿using GitInteraction.Git;
 using GitInteraction.GitHub;
-using Newtonsoft.Json;
+using Newtonsoft.Json; 
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -32,10 +32,9 @@ namespace GitInteraction
                 gitInteractionService.RestoreRepositoryToPreviousState(clonedRepositoryPath, chosenCommitId);
 
                 //list of branches + history
-                IList<DTO.Branch> branches = gitInteractionService.GetRepositoryRemoteBranches(clonedRepositoryPath);
+                IList<DTO.Branch> branches = gitInteractionService.GetRemoteBranchesHistory(clonedRepositoryPath);
                 string jsonBranches = JsonConvert.SerializeObject(branches, Formatting.Indented);
                 WriteJsonToFile(jsonBranches, historyJsonPath);
-
 
             }
             catch (Exception ex)
@@ -46,6 +45,7 @@ namespace GitInteraction
 
             Console.WriteLine(value: $"Clone for repository is done! Restored to: {chosenCommitId}");
             Console.ReadLine();
+            
         }
 
         private static void WriteJsonToFile(string jsonContent, string path)

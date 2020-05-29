@@ -22,7 +22,7 @@ namespace GitInteraction.Git
             return gitRepoPath;
         }
 
-        public IList<DTO.Branch> GetRepositoryRemoteBranches(string repositoryPath)
+        public IList<DTO.Branch> GetRemoteBranchesHistory(string repositoryPath)
         {
             List<DTO.Branch> branches = new List<DTO.Branch>();
             using (Repository repo = new Repository(repositoryPath))
@@ -41,41 +41,48 @@ namespace GitInteraction.Git
 
                         foreach (Commit commit in branch.Commits)
                         {
-                            // commit level
-                            DTO.Commit commitCopy = new DTO.Commit
-                            {
-                                CommitSha = commit.Sha,
-                                Message = commit.Message
-                            };
-
-                            List<DTO.Commit> listOfParents = new List<DTO.Commit>();
-                            IEnumerable<Commit> innerCommitParentsNode = commit.Parents;
-                            while (innerCommitParentsNode.Any())
-                            {
-                                foreach (Commit innerCommit in innerCommitParentsNode)
-                                {
-                                    DTO.Commit parentCopy = new DTO.Commit
-                                    {
-                                        CommitSha = innerCommit.Sha,
-                                        Message = innerCommit.Message
-                                    };
-                                    innerCommitParentsNode = innerCommit.Parents;
-
-                                    listOfParents.Add(parentCopy);
-                                }
-                            }
-
-                            commitCopy.Parents = listOfParents;
-                            listOfCommits.Add(commitCopy);
+                           listOfCommits.Add(ComputeParentsRecursively(commit));
                         }
-                        branchCopy.Commits = listOfCommits;
 
+                        branchCopy.Commits = listOfCommits;
+                         
                         branches.Add(branchCopy);
                     }
                 }
             }
 
             return branches;
+        }
+
+        private DTO.Commit ComputeParentsRecursively(Commit commit)
+        {
+            var newCommit = new DTO.Commit
+            {
+                Parents = new List<DTO.Commit>()
+            };
+
+            if (commit.Parents.Any())
+            {
+                newCommit.CommitSha = commit.Sha;
+                newCommit.Message = commit.Message;
+                newCommit.AuthorName = commit.Author.Name;
+                foreach(var parent in commit.Parents)
+                {
+                    newCommit.Parents.Add(ComputeParentsRecursively(parent));
+                }
+            }
+            else
+            {
+                return new DTO.Commit()
+                {
+                    CommitSha = commit.Sha,
+                    Message = commit.Message,
+                    AuthorName = commit.Author.Name,
+                    Parents = null
+                };
+            }
+
+            return newCommit;
         }
 
         public IList<DTO.Commit> GetRepositoryCommits(string repositoryPath)
@@ -85,7 +92,7 @@ namespace GitInteraction.Git
             {
                 foreach (Commit commit in repo.Commits)
                 {
-                    commits.Add(new DTO.Commit() { CommitSha = commit.Sha, Message = commit.Message });
+                    commits.Add(new DTO.Commit() { CommitSha = commit.Sha, Message = commit.Message, AuthorName = commit.Author.Name });
                 }
             }
 
